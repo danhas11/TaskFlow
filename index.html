@@ -1,0 +1,925 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TaskFlow - Task Management App</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+    />
+
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg
+            viewBox="0 0 32 32"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect width="32" height="32" rx="9" fill="currentColor" />
+            <path
+              d="M9.5 16.4 13.4 20.2 22.5 11.8"
+              stroke="#fff"
+              stroke-width="2.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
+        <div class="brand-copy">
+          <h1>TaskFlow</h1>
+          <p class="brand-tagline">Plan. Track. Finish.</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button
+          type="button"
+          id="progress-toggle-button"
+          aria-label="Hide Progress Overview"
+        >
+          <svg
+            class="progress-toggle-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M4 19V9M10 19V5M16 19v-7M22 19V8"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+          <span class="progress-toggle-label">Hide Progress Overview</span>
+        </button>
+
+        <button
+          type="button"
+          id="nav-toggle-button"
+          class="nav-toggle-button"
+          aria-label="Open menu"
+          aria-expanded="false"
+          aria-controls="main-navigation"
+        >
+          <span class="nav-toggle-bar"></span>
+          <span class="nav-toggle-bar"></span>
+          <span class="nav-toggle-bar"></span>
+        </button>
+      </div>
+
+      <div class="nav-backdrop" id="nav-backdrop" hidden></div>
+
+      <nav
+        id="main-navigation"
+        class="main-navigation"
+        aria-label="Main navigation"
+      >
+        <button
+          type="button"
+          class="nav-button active"
+          data-view="dashboard"
+          aria-current="page"
+        >
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5Z"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <span>Dashboard</span>
+        </button>
+
+        <button type="button" class="nav-button" data-view="tasks">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+            />
+          </svg>
+          <span>My Tasks</span>
+        </button>
+
+        <button type="button" class="nav-button" data-view="journal">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M6 4h10a2 2 0 0 1 2 2v14l-3-2-3 2-3-2-3 2V6a2 2 0 0 1 2-2Z"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <span>Personal Journal</span>
+        </button>
+
+        <button type="button" class="nav-button" data-view="goals">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle
+              cx="12"
+              cy="12"
+              r="8"
+              stroke="currentColor"
+              stroke-width="1.8"
+            />
+            <circle
+              cx="12"
+              cy="12"
+              r="3.2"
+              stroke="currentColor"
+              stroke-width="1.8"
+            />
+          </svg>
+          <span>Goals &amp; Plans</span>
+        </button>
+
+        <button type="button" class="nav-button" data-view="habits">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M4 16.5 8.5 12l3.2 3.2L20 7.5"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <span>Daily Habits</span>
+        </button>
+      </nav>
+    </header>
+
+    <main>
+      <!-- Dashboard -->
+      <section id="dashboard-view" class="app-view">
+        <section id="progress-dashboard" aria-label="Progress overview">
+          <div class="dash-hero">
+            <div class="dash-hero__copy">
+              <p class="dash-hero__eyebrow" id="dashboard-date"></p>
+              <h2 id="dashboard-greeting">Welcome back</h2>
+              <p class="dash-hero__message" id="dashboard-message"></p>
+              <div
+                class="dash-hero__achievements"
+                id="dashboard-achievements"
+                aria-label="Achievements"
+              ></div>
+            </div>
+
+            <div
+              class="dash-ring"
+              id="overall-ring"
+              role="img"
+              aria-label="Overall momentum 0 percent"
+            >
+              <span class="dash-ring__arc" id="overall-ring-arc"></span>
+              <div class="dash-ring__center">
+                <strong id="overall-percent">0%</strong>
+                <span>Overall momentum</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="dash-panels">
+            <article class="dash-panel dash-panel--tasks">
+              <header class="dash-panel__head">
+                <span class="dash-panel__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                </span>
+                <h3>Tasks</h3>
+                <button
+                  type="button"
+                  class="link-button"
+                  data-view-link="tasks"
+                >
+                  Open
+                </button>
+              </header>
+
+              <p class="dash-panel__value">
+                <span id="progress-percent">0%</span>
+                <small>completed</small>
+              </p>
+
+              <div
+                class="progress-bar"
+                role="progressbar"
+                aria-label="Task completion progress"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="0"
+                id="progress-track"
+              >
+                <div class="progress-bar__fill" id="progress-fill"></div>
+              </div>
+
+              <p class="dash-panel__caption">
+                <span id="completed-count">0</span> of
+                <span id="total-count">0</span> tasks completed
+              </p>
+
+              <div class="mini-stats">
+                <div class="mini-stat">
+                  <span>Total</span><strong id="total-tasks">0</strong>
+                </div>
+                <div class="mini-stat">
+                  <span>Done</span><strong id="completed-tasks">0</strong>
+                </div>
+                <div class="mini-stat">
+                  <span>Remaining</span><strong id="remaining-tasks">0</strong>
+                </div>
+              </div>
+            </article>
+
+            <article class="dash-panel dash-panel--goals">
+              <header class="dash-panel__head">
+                <span class="dash-panel__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="8"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                    />
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="3.2"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                    />
+                  </svg>
+                </span>
+                <h3>Goals</h3>
+                <button
+                  type="button"
+                  class="link-button"
+                  data-view-link="goals"
+                >
+                  Open
+                </button>
+              </header>
+
+              <p class="dash-panel__value">
+                <span id="dash-goals-percent">0%</span>
+                <small>average progress</small>
+              </p>
+
+              <div
+                class="progress-bar progress-bar--teal"
+                role="progressbar"
+                aria-label="Average goal progress"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="0"
+                id="dash-goals-track"
+              >
+                <div class="progress-bar__fill" id="dash-goals-fill"></div>
+              </div>
+
+              <p class="dash-panel__caption" id="dash-goals-caption">
+                No goals yet
+              </p>
+
+              <div class="mini-stats">
+                <div class="mini-stat">
+                  <span>Total</span><strong id="dash-goals-total">0</strong>
+                </div>
+                <div class="mini-stat">
+                  <span>Active</span><strong id="dash-goals-active">0</strong>
+                </div>
+                <div class="mini-stat">
+                  <span>Achieved</span><strong id="dash-goals-done">0</strong>
+                </div>
+              </div>
+            </article>
+
+            <article class="dash-panel dash-panel--habits">
+              <header class="dash-panel__head">
+                <span class="dash-panel__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M4 16.5 8.5 12l3.2 3.2L20 7.5"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </span>
+                <h3>Habits</h3>
+                <button
+                  type="button"
+                  class="link-button"
+                  data-view-link="habits"
+                >
+                  Open
+                </button>
+              </header>
+
+              <p class="dash-panel__value">
+                <span id="dash-habits-percent">0%</span>
+                <small>done today</small>
+              </p>
+
+              <div
+                class="progress-bar progress-bar--amber"
+                role="progressbar"
+                aria-label="Today's habit progress"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="0"
+                id="dash-habits-track"
+              >
+                <div class="progress-bar__fill" id="dash-habits-fill"></div>
+              </div>
+
+              <p class="dash-panel__caption" id="dash-habits-caption">
+                No habits yet
+              </p>
+
+              <div class="mini-stats">
+                <div class="mini-stat">
+                  <span>Habits</span><strong id="dash-habits-total">0</strong>
+                </div>
+                <div class="mini-stat">
+                  <span>Today</span><strong id="dash-habits-done">0</strong>
+                </div>
+                <div class="mini-stat">
+                  <span>Streak</span><strong id="dash-habits-streak">0</strong>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section
+          id="dashboard-focus"
+          class="dash-focus"
+          aria-label="Today's focus"
+        >
+          <article class="focus-card">
+            <header class="focus-card__head">
+              <h3>Up next</h3>
+              <button
+                type="button"
+                class="link-button"
+                data-view-link="tasks"
+              >
+                All tasks
+              </button>
+            </header>
+            <ul class="focus-list" id="dashboard-upcoming-list"></ul>
+          </article>
+
+          <article class="focus-card">
+            <header class="focus-card__head">
+              <h3>Today's habits</h3>
+              <button
+                type="button"
+                class="link-button"
+                data-view-link="habits"
+              >
+                All habits
+              </button>
+            </header>
+            <ul class="focus-list" id="dashboard-habits-list"></ul>
+          </article>
+
+          <article class="focus-card">
+            <header class="focus-card__head">
+              <h3>Goals in motion</h3>
+              <button
+                type="button"
+                class="link-button"
+                data-view-link="goals"
+              >
+                All goals
+              </button>
+            </header>
+            <ul class="focus-list" id="dashboard-goals-list"></ul>
+          </article>
+        </section>
+      </section>
+
+      <!-- My Tasks -->
+      <section id="tasks-view" class="app-view" hidden>
+        <header class="page-header">
+          <div>
+            <h2>My Tasks</h2>
+            <p>Capture what needs doing, then tick it off.</p>
+          </div>
+        </header>
+
+        <div class="search-panel panel">
+          <label for="task-search-input">Search tasks</label>
+          <input
+            type="search"
+            id="task-search-input"
+            class="form-control form-control--search"
+            placeholder="Search by task title..."
+          />
+        </div>
+
+        <div class="task-filters" role="group" aria-label="Filter tasks">
+          <button
+            type="button"
+            class="task-filter-button"
+            data-task-filter="all"
+            aria-pressed="false"
+          >
+            All Tasks
+          </button>
+          <button
+            type="button"
+            class="task-filter-button active"
+            data-task-filter="active"
+            aria-pressed="true"
+          >
+            Active Tasks
+          </button>
+          <button
+            type="button"
+            class="task-filter-button"
+            data-task-filter="completed"
+            aria-pressed="false"
+          >
+            Completed Tasks
+          </button>
+        </div>
+        <p id="task-filter-count" class="task-filter-count"></p>
+
+        <section id="task-list" aria-live="polite"></section>
+
+        <section id="task-form-section" class="form-card">
+          <h3 class="form-card__title" id="task-form-heading">Add a New Task</h3>
+
+          <form id="task-form" class="form-grid">
+            <div class="field field--full">
+              <label for="task-title">Task Title</label>
+              <input
+                type="text"
+                id="task-title"
+                class="form-control"
+                required
+              />
+            </div>
+
+            <div class="field field--full">
+              <label for="task-description">Description</label>
+              <textarea
+                id="task-description"
+                class="form-control"
+              ></textarea>
+            </div>
+
+            <div class="field">
+              <label for="task-priority">Priority</label>
+              <select id="task-priority" class="form-control">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="task-due-date">Task Due Date</label>
+              <input
+                type="date"
+                id="task-due-date"
+                class="form-control"
+                required
+              />
+            </div>
+
+            <div class="form-actions">
+              <button
+                type="submit"
+                id="submit-task-button"
+                class="btn btn-primary"
+              >
+                Add Task
+              </button>
+              <button
+                type="button"
+                id="cancel-task-edit"
+                class="btn btn-neutral"
+                hidden
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </section>
+      </section>
+
+      <!-- Personal Journal -->
+      <section id="journal-view" class="app-view" hidden>
+        <header class="page-header">
+          <div>
+            <h2>Personal Journal</h2>
+            <p>Your thoughts, ideas, and reflections will live here.</p>
+          </div>
+        </header>
+
+        <form id="journal-form" class="form-card form-grid">
+          <div class="field field--full">
+            <label for="journal-title">Entry Title</label>
+            <input
+              type="text"
+              id="journal-title"
+              class="form-control"
+              placeholder="Give your entry a title"
+              required
+            />
+          </div>
+
+          <div class="field field--full">
+            <label for="journal-content">Your Thoughts</label>
+            <textarea
+              id="journal-content"
+              class="form-control"
+              placeholder="Write your thoughts, ideas, or reflections..."
+              rows="6"
+              required
+            ></textarea>
+          </div>
+
+          <div class="field">
+            <label for="journal-date">Entry Date</label>
+            <input
+              type="date"
+              id="journal-date"
+              class="form-control"
+              required
+            />
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="journal-submit-button" class="btn btn-primary">
+              Save Entry
+            </button>
+            <button
+              type="button"
+              id="journal-cancel-edit"
+              class="btn btn-neutral"
+              hidden
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+
+        <div class="search-panel panel">
+          <label for="journal-search">Search Journal</label>
+          <input
+            type="search"
+            id="journal-search"
+            class="form-control form-control--search"
+            placeholder="Search your entries..."
+          />
+        </div>
+
+        <div id="journal-entries-list">
+        </div>
+      </section>
+
+      <!-- Goals & Plans -->
+      <section id="goals-view" class="app-view" hidden>
+        <header class="page-header">
+          <div>
+            <h2>Goals &amp; Plans</h2>
+            <p>Turn your long-term plans into progress.</p>
+          </div>
+          <button type="button" id="add-goal-button" class="btn btn-primary">
+            + Add New Goal
+          </button>
+        </header>
+
+        <div class="stat-grid">
+          <article class="stat-card stat-card--primary">
+            <h3>Total Goals</h3>
+            <p id="total-goals">0</p>
+          </article>
+
+          <article class="stat-card stat-card--teal">
+            <h3>In Progress</h3>
+            <p id="active-goals">0</p>
+          </article>
+
+          <article class="stat-card stat-card--emerald">
+            <h3>Completed</h3>
+            <p id="completed-goals">0</p>
+          </article>
+        </div>
+
+        <section id="goal-form-section" class="form-card" hidden>
+          <h3 class="form-card__title" id="goal-form-heading">
+            Create a New Goal
+          </h3>
+
+          <form id="goal-form" class="form-grid">
+            <div class="field field--full">
+              <label for="goal-title">Goal Title</label>
+              <input
+                type="text"
+                id="goal-title"
+                class="form-control"
+                placeholder="e.g. Become a Front-End Developer"
+                required
+              />
+            </div>
+
+            <div class="field field--full">
+              <label for="goal-description">Description</label>
+              <textarea
+                id="goal-description"
+                class="form-control"
+                placeholder="What do you want to achieve?"
+                rows="3"
+              ></textarea>
+            </div>
+
+            <div class="field">
+              <label for="goal-category">Category</label>
+              <select id="goal-category" class="form-control" required>
+                <option value="">Select a category</option>
+                <option value="career">Career</option>
+                <option value="education">Education</option>
+                <option value="personal">Personal</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="goal-target-date">Target Date</label>
+              <input
+                type="date"
+                id="goal-target-date"
+                class="form-control"
+                required
+              />
+            </div>
+
+            <div class="field field--full">
+              <label for="goal-milestone-input">Milestones (optional)</label>
+              <div class="milestone-input-row">
+                <input
+                  type="text"
+                  id="goal-milestone-input"
+                  class="form-control"
+                  placeholder="e.g. Finish the HTML and CSS course"
+                  maxlength="80"
+                />
+                <button
+                  type="button"
+                  id="add-milestone-button"
+                  class="btn btn-soft"
+                >
+                  Add
+                </button>
+              </div>
+              <p class="field-hint">
+                Tick milestones off on the goal card and its progress bar
+                updates automatically.
+              </p>
+              <ul id="goal-milestone-list" class="milestone-list"></ul>
+            </div>
+
+            <div class="field">
+              <label for="goal-progress">Progress (%)</label>
+              <input
+                type="number"
+                id="goal-progress"
+                class="form-control"
+                min="0"
+                max="100"
+                value="0"
+                aria-describedby="goal-progress-hint"
+                required
+              />
+              <p class="field-hint" id="goal-progress-hint"></p>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" id="save-goal-button" class="btn btn-primary">
+                Save Goal
+              </button>
+              <button
+                type="button"
+                id="cancel-goal-button"
+                class="btn btn-neutral"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <div class="section-bar">
+          <h3>Your Goals</h3>
+
+          <div class="filter-group" role="group" aria-label="Filter goals">
+            <button
+              type="button"
+              class="goal-filter-button active"
+              data-filter="all"
+              aria-pressed="true"
+            >
+              All
+            </button>
+            <button
+              type="button"
+              class="goal-filter-button"
+              data-filter="active"
+              aria-pressed="false"
+            >
+              In Progress
+            </button>
+            <button
+              type="button"
+              class="goal-filter-button"
+              data-filter="completed"
+              aria-pressed="false"
+            >
+              Completed
+            </button>
+          </div>
+        </div>
+
+        <div id="goals-list" class="goals-list"></div>
+      </section>
+
+      <!-- Daily Habits -->
+      <section id="habits-view" class="app-view" hidden>
+        <header class="page-header">
+          <div>
+            <h2>Daily Habits</h2>
+            <p>Build consistency, one day at a time.</p>
+          </div>
+          <button type="button" id="add-habit-button" class="btn btn-primary">
+            + Add Habit
+          </button>
+        </header>
+
+        <div class="stat-grid">
+          <article class="stat-card stat-card--primary">
+            <h3>Total Habits</h3>
+            <p id="total-habits">0</p>
+          </article>
+
+          <article class="stat-card stat-card--emerald">
+            <h3>Completed Today</h3>
+            <p id="completed-habits-today">0</p>
+          </article>
+
+          <article class="stat-card stat-card--amber">
+            <h3>Today's Progress</h3>
+            <p id="habits-progress-percent">0%</p>
+          </article>
+        </div>
+
+        <section id="habit-form-section" class="form-card" hidden>
+          <h3 class="form-card__title" id="habit-form-heading">
+            Create a Habit
+          </h3>
+
+          <form id="habit-form" class="form-grid">
+            <div class="field field--full">
+              <label for="habit-title">Habit Name</label>
+              <input
+                type="text"
+                id="habit-title"
+                class="form-control"
+                placeholder="e.g. Read for 20 minutes"
+                required
+                maxlength="100"
+              />
+            </div>
+
+            <div class="field field--full">
+              <label for="habit-description">Description (optional)</label>
+              <textarea
+                id="habit-description"
+                class="form-control"
+                placeholder="Why is this habit important to you?"
+                rows="3"
+              ></textarea>
+            </div>
+
+            <div class="field">
+              <label for="habit-start-date">Start Date</label>
+              <input
+                type="date"
+                id="habit-start-date"
+                class="form-control"
+                required
+              />
+            </div>
+
+            <div class="field">
+              <label for="habit-duration">Tracking Duration</label>
+              <select id="habit-duration" class="form-control" required>
+                <option value="30">30 days</option>
+                <option value="90">90 days</option>
+                <option value="180">180 days</option>
+                <option value="365">365 days (1 year)</option>
+              </select>
+            </div>
+
+            <fieldset class="field field--full schedule-fieldset">
+              <legend>Schedule</legend>
+
+              <div class="choice-group">
+                <label class="choice">
+                  <input
+                    type="radio"
+                    name="habit-schedule"
+                    value="daily"
+                    checked
+                  />
+                  Every day
+                </label>
+
+                <label class="choice">
+                  <input
+                    type="radio"
+                    name="habit-schedule"
+                    value="selected-days"
+                  />
+                  Selected weekdays
+                </label>
+              </div>
+
+              <div id="habit-weekdays" class="choice-group" hidden>
+                <label class="choice"
+                  ><input type="checkbox" name="habit-weekday" value="1" />
+                  Monday</label
+                >
+                <label class="choice"
+                  ><input type="checkbox" name="habit-weekday" value="2" />
+                  Tuesday</label
+                >
+                <label class="choice"
+                  ><input type="checkbox" name="habit-weekday" value="3" />
+                  Wednesday</label
+                >
+                <label class="choice"
+                  ><input type="checkbox" name="habit-weekday" value="4" />
+                  Thursday</label
+                >
+                <label class="choice"
+                  ><input type="checkbox" name="habit-weekday" value="5" />
+                  Friday</label
+                >
+                <label class="choice"
+                  ><input type="checkbox" name="habit-weekday" value="6" />
+                  Saturday</label
+                >
+                <label class="choice"
+                  ><input type="checkbox" name="habit-weekday" value="0" />
+                  Sunday</label
+                >
+              </div>
+            </fieldset>
+
+            <div class="form-actions">
+              <button type="submit" id="save-habit-button" class="btn btn-primary">
+                Save Habit
+              </button>
+              <button
+                type="button"
+                id="cancel-habit-button"
+                class="btn btn-neutral"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <div id="habits-list"></div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
